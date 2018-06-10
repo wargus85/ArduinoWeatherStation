@@ -96,17 +96,9 @@ float BarPressure()                                                             
 }
 
 void setup(){
-  // Open serial communications and wait for port to open:
-  Serial.begin(9600);
-  while (!Serial) {
-    ; // wait for serial port to connect. Needed for native USB port only
-  }
-
   // start the Ethernet connection and the server:
   Ethernet.begin(mac, ip);
   server.begin();
-  Serial.print("server is at ");
-  Serial.println(Ethernet.localIP());
 }
 void loop(){
 
@@ -115,13 +107,11 @@ void loop(){
 // listen for incoming clients
 EthernetClient client = server.available();
 if (client) {
-    Serial.println("new client");
     // an http request ends with a blank line
     boolean currentLineIsBlank = true;
     while (client.connected()) {
       if (client.available()) {
         char c = client.read();
-        Serial.write(c);
         // if you've gotten to the end of the line (received a newline
         // character) and the line is blank, the http request has ended,
         // so you can send a reply
@@ -172,6 +162,5 @@ if (client) {
     delay(1);
     // close the connection:
     client.stop();
-    Serial.println("client disconnected");
   }
 }
