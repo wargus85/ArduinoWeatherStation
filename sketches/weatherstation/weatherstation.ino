@@ -37,7 +37,8 @@ int transCharToInt(char *_buffer,int _start,int _stop)                          
 
 int WindDirection()                                                                  //Wind Direction
 {
-  return transCharToInt(databuffer,1,3);
+  //return transCharToInt(databuffer,1,3);
+  return 99;
 }
 
 float WindSpeedAverage()                                                             //air Speed (1 minute)
@@ -87,7 +88,7 @@ void setup()
 }
 void loop()
 { 
-  getBuffer();                                                                      //Begin!
+ // getBuffer();                                                                      //Begin!
   Serial.print("Wind Direction: ");
   Serial.print(WindDirection());
   Serial.println("  ");
@@ -115,3 +116,4 @@ void loop()
   Serial.println("");
    Serial.println("");
 }
+
