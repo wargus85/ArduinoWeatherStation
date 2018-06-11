@@ -1,22 +1,25 @@
 /*
 Source code for the weather station originally from: https://www.dfrobot.com/wiki/index.php/Weather_Station_with_Anemometer/Wind_vane/Rain_bucket_SKU:SEN0186
 Source code for the http server from: https://www.arduino.cc/en/Tutorial/WebServer
+Time Library: https://www.pjrc.com/teensy/td_libs_Time.html
 
 */
 
 #include <SPI.h>
 #include <Ethernet.h>
 #include <EthernetUdp.h>
+#include <TimeLib.h>
 
 char databuffer[35];
 double temp;
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 unsigned long epoch;
+time_t curtime;
 //IPAddress ip(10, 60, 204, 199);
 EthernetServer server(80);
 
 unsigned int localPort = 8888;       // local port to listen for UDP packets
-char timeServer[] = "time.nist.gov"; // time.nist.gov NTP server
+char timeServer[] = "au.pool.ntp.org"; // time.nist.gov NTP server
 const int NTP_PACKET_SIZE = 48; // NTP time stamp is in the first 48 bytes of the message
 byte packetBuffer[ NTP_PACKET_SIZE]; //buffer to hold incoming and outgoing packets
 // A UDP instance to let us send and receive packets over UDP
@@ -129,10 +132,7 @@ void setup(){
   Ethernet.begin(mac) == 0;
   server.begin();
   Udp.begin(localPort);
-}
-void loop(){
-
-sendNTPpacket(timeServer);
+  sendNTPpacket(timeServer);
 delay(1000);
 if (Udp.parsePacket()) {
   // We've received a packet, read the data from it
@@ -143,8 +143,14 @@ if (Udp.parsePacket()) {
   const unsigned long seventyYears = 2208988800UL;
   epoch = secsSince1900 - seventyYears;
     delay(10000);
-  Ethernet.maintain();
+  //Ethernet.maintain();
+  setTime(epoch);
 }
+
+}
+
+void loop(){
+
 //pull the data from the serial port
 //getBuffer();
 // listen for incoming clients
@@ -188,9 +194,35 @@ if (client) {
             client.print(",\"24h\":");
             client.print(RainfallOneDay());
             client.print("},");
-            client.println("\"time\":");
-            client.print(epoch);
-            client.println("}");
+            curtime = now();
+            client.println("\"dt\":{\"date\":");
+            client.print("\"");
+            client.print(day(curtime));
+            client.print("/");
+            client.print(month(curtime));
+            client.print("/");
+            client.print(year(curtime));
+            client.print("\"");
+            client.print(",\"timestamp\":");
+            client.print(curtime);
+            client.print(",\"readabletime\":");
+            client.print("\"");
+            client.print(hour()+8);
+            client.print(":");
+            if (minute() < 10){
+              client.print("0");
+              client.print(minute());
+              }
+            else {
+              client.print(minute());
+              }
+            if (hour() < 12) {
+              client.print("AM");
+            }
+            else {
+              client.print("PM");
+            }
+            client.print("\"}}");
             client.println("</html>");
             break;
         }
