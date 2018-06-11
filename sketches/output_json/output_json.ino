@@ -163,7 +163,7 @@ if (Udp.parsePacket()) {
 void loop(){
 
 //pull the data from the serial port
-//getBuffer();
+getBuffer();
 // listen for incoming clients
 EthernetClient client = server.available();
 if (client) {
