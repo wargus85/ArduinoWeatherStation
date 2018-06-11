@@ -3,6 +3,17 @@ Source code for the weather station originally from: https://www.dfrobot.com/wik
 Source code for the http server from: https://www.arduino.cc/en/Tutorial/WebServer
 Time Library: https://www.pjrc.com/teensy/td_libs_Time.html
 
+Example data output:
+{"coord":{"lon":-32.000757,"lat":115.869983},"main":{"temp": -2977.78,"pressure":-904.00,"humidity":-528},"wind":{"speed:" -2381.83,"gust":-2381.83,"deg":-5328},"rain":{"1h": -1353.31,"24h":-1353.31},"dt":{"date": "11/6/2018","timestamp":1528686180,"readabletime":"11:03AM"}}
+
+In the current configuration below, the arduino will get a DHCP address. My router will statically assign it the same address.
+
+Hardware required for the project:
+Weather Station Kit with Anemometer/Wind Vane/Rain Bucket - https://www.dfrobot.com/wiki/index.php/Weather_Station_with_Anemometer/Wind_vane/Rain_bucket_SKU:SEN0186
+Arduino EtherTen - https://www.freetronics.com.au/products/etherten
+Arduino power supply and Passive PoE Injector Cable Set - https://www.littlebirdelectronics.com.au/passive-poe-injector-cable-set
+Cat6 Cabling, project box, misc cables, screws,wWeather station roof mounting supplies from your local hardware store.
+
 */
 
 #include <SPI.h>
@@ -15,13 +26,13 @@ double temp;
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 unsigned long epoch;
 time_t curtime;
-//IPAddress ip(10, 60, 204, 199);
+
 EthernetServer server(80);
 
-unsigned int localPort = 8888;       // local port to listen for UDP packets
-char timeServer[] = "au.pool.ntp.org"; // time.nist.gov NTP server
-const int NTP_PACKET_SIZE = 48; // NTP time stamp is in the first 48 bytes of the message
-byte packetBuffer[ NTP_PACKET_SIZE]; //buffer to hold incoming and outgoing packets
+unsigned int localPort = 8888; 
+char timeServer[] = "au.pool.ntp.org";
+const int NTP_PACKET_SIZE = 48;
+byte packetBuffer[ NTP_PACKET_SIZE];
 // A UDP instance to let us send and receive packets over UDP
 EthernetUDP Udp;
 
@@ -165,65 +176,18 @@ if (client) {
         // character) and the line is blank, the http request has ended,
         // so you can send a reply
         if (c == '\n' && currentLineIsBlank) {
-            // send a standard http response header
+            //Tell the client this is a JSON
             client.println("HTTP/1.1 200 OK");
-            client.println("Content-Type: text/html");
-            client.println("Connection: close");  // the connection will be closed after completion of the response
-            client.println("Refresh: 20");  // refresh the page automatically every 5 sec
+            client.println("Content-Type: application/json; charset=utf-8");
+            client.println("Connection: keep-alive");
             client.println();
-            client.println("<!DOCTYPE HTML>");
-            client.println("<html>");
-            // output the values of the sensors
-            client.print("{\"coord\":{\"lon\":-32.000757,\"lat\":115.869983},");
-            client.println("\"main\":{\"temp\":");
-            client.print(Temperature());
-            client.print(",\"pressure\":");
-            client.print(BarPressure());
-            client.print(",\"humidity\":");
-            client.print(Humidity());
-            client.print("},");
-            client.println("\"wind\":{\"speed:\"");
-            client.print(WindSpeedAverage());
-            client.print(",\"gust\":");
-            client.print(WindSpeedMax());
-            client.print(",\"deg\":");
-            client.print(WindDirection());
-            client.print("},");
-            client.println("\"rain\":{\"1h\":");
-            client.print(RainfallOneHour());
-            client.print(",\"24h\":");
-            client.print(RainfallOneDay());
-            client.print("},");
-            curtime = now();
-            client.println("\"dt\":{\"date\":");
-            client.print("\"");
-            client.print(day(curtime));
-            client.print("/");
-            client.print(month(curtime));
-            client.print("/");
-            client.print(year(curtime));
-            client.print("\"");
-            client.print(",\"timestamp\":");
-            client.print(curtime);
-            client.print(",\"readabletime\":");
-            client.print("\"");
-            client.print(hour()+8);
-            client.print(":");
-            if (minute() < 10){
-              client.print("0");
-              client.print(minute());
-              }
-            else {
-              client.print(minute());
-              }
-            if (hour() < 12) {
-              client.print("AM");
-            }
-            else {
-              client.print("PM");
-            }
-            client.print("\"}}");
-            client.println("</html>");
+            //Create a json formatted string and output the values to the webclient
+            curtime = now(); //get the current time
+            String data = "{\"coord\":{\"lon\":-32.000757,\"lat\":115.869983},\"weather\":{\"temp\":"+String(Temperature())+",\"pressure\":"
+            +String(BarPressure())+",\"humidity\":"+String(Humidity())+"},\"wind\":{\"speed\":"+String(WindSpeedAverage())+",\"gust\":"
+            +String(WindSpeedMax())+",\"deg\":"+String(WindDirection())+"},\"rain\":{\"1h\":"+String(RainfallOneHour())+",\"24h\":"
+            +String(RainfallOneDay())+"},\"dt\":"+String(curtime)+"}";
+            client.println(data);
             break;
         }
         if (c == '\n') {
