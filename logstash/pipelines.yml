@@ -1,0 +1,4 @@
+- pipeline.id: weather-pipeline
+  path.config: "/etc/logstash/conf.d/01-http-weather.conf" 
+- pipeline.id: systemlogs-pipeline
+  path.config: "/etc/logstash/conf.d/02-system-logs.conf"
