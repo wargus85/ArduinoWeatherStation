@@ -7,7 +7,7 @@ The premise is simple enough: A homebrew weather station that exports a JSON of 
 ## Hardware required for the project:
 1. [Weather Station Kit with Anemometer/Wind Vane/Rain Bucket](https://www.dfrobot.com/wiki/index.php/Weather_Station_with_Anemometer/Wind_vane/Rain_bucket_SKU:SEN0186)
 3. [Arduino EtherTen](https://www.freetronics.com.au/products/etherten) (or any arduino with a compatible ethernet shield)
-4. Arduino power supply and [Passive PoE Injector]9https://www.littlebirdelectronics.com.au/passive-poe-injector-cable-set) Cable Set
+4. Arduino power supply and [Passive PoE Injector](https://www.littlebirdelectronics.com.au/passive-poe-injector-cable-set) Cable Set
 5. Cat6 Cabling, project box, misc cables, screws, weather station roof mounting supplies from your local hardware store.
 
 ## Code included in the project/Instructions.
