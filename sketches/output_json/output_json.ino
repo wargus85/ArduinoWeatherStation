@@ -1,18 +1,16 @@
 /*
-Source code for the weather station originally from: https://www.dfrobot.com/wiki/index.php/Weather_Station_with_Anemometer/Wind_vane/Rain_bucket_SKU:SEN0186
-Source code for the http server from: https://www.arduino.cc/en/Tutorial/WebServer
+
+Some source code for the weather station originally from: https://www.dfrobot.com/wiki/index.php/Weather_Station_with_Anemometer/Wind_vane/Rain_bucket_SKU:SEN0186
+Some more source code for the http server from: https://www.arduino.cc/en/Tutorial/WebServer
 Time Library: https://www.pjrc.com/teensy/td_libs_Time.html
 
+All other additions/modifications by Warren Argus.
+
 Example data output:
-{"coord":{"lon":-32.000757,"lat":115.869983},"main":{"temp": -2977.78,"pressure":-904.00,"humidity":-528},"wind":{"speed:" -2381.83,"gust":-2381.83,"deg":-5328},"rain":{"1h": -1353.31,"24h":-1353.31},"dt":{"date": "11/6/2018","timestamp":1528686180,"readabletime":"11:03AM"}}
+{"coord":{"lon":-32.,"lat":115},"main":{"temp": -2977.78,"pressure":-904.00,"humidity":-528},"wind":{"speed:" -2381.83,"gust":-2381.83,"deg":-5328},"rain":{"1h": -1353.31,"24h":-1353.31},"dt":{"date": "11/6/2018","timestamp":1528686180,"readabletime":"11:03AM"}}
 
 In the current configuration below, the arduino will get a DHCP address. My router will statically assign it the same address.
-
-Hardware required for the project:
-Weather Station Kit with Anemometer/Wind Vane/Rain Bucket - https://www.dfrobot.com/wiki/index.php/Weather_Station_with_Anemometer/Wind_vane/Rain_bucket_SKU:SEN0186
-Arduino EtherTen - https://www.freetronics.com.au/products/etherten
-Arduino power supply and Passive PoE Injector Cable Set - https://www.littlebirdelectronics.com.au/passive-poe-injector-cable-set
-Cat6 Cabling, project box, misc cables, screws,wWeather station roof mounting supplies from your local hardware store.
+You may want to change the latitude and longitude to the location of your weather station. 
 
 */
 
@@ -183,7 +181,7 @@ if (client) {
             client.println();
             //Create a json formatted string and output the values to the webclient
             curtime = now(); //get the current time
-            String data = "{\"coord\":{\"lon\":-32.000757,\"lat\":115.869983},\"weather\":{\"temp\":"+String(Temperature())+",\"pressure\":"
+            String data = "{\"coord\":{\"lon\":000,\"lat\":000},\"weather\":{\"temp\":"+String(Temperature())+",\"pressure\":"
             +String(BarPressure())+",\"humidity\":"+String(Humidity())+"},\"wind\":{\"speed\":"+String(WindSpeedAverage())+",\"gust\":"
             +String(WindSpeedMax())+",\"deg\":"+String(WindDirection())+"},\"rain\":{\"1h\":"+String(RainfallOneHour())+",\"24h\":"
             +String(RainfallOneDay())+"},\"dt\":"+String(curtime)+"}";

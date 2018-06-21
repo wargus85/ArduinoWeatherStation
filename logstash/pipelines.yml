@@ -1,10 +1,4 @@
 - pipeline.id: weather-pipeline
   path.config: "/etc/logstash/conf.d/01-http-weather.conf" 
-- pipeline.id: systemlogs-pipeline
-  path.config: "/etc/logstash/conf.d/02-system-logs.conf"
 - pipeline.id: padburysolar-pipeline
-  path.config: "/etc/logstash/conf.d/03-padbury-solar.conf"
-- pipeline.id: apache-pipeline
-  path.config: "/etc/logstash/conf.d/04-apache2.conf"
-- pipeline.id: mysql-pipeline
-  path.config: "/etc/logstash/conf.d/05-mysql.conf"
+  path.config: "/etc/logstash/conf.d/03-fronius-solar.conf"
