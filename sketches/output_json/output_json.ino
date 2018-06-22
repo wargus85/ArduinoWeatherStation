@@ -190,7 +190,7 @@ if (Udp.parsePacket()) {
 void loop(){
 
 //pull the data from the serial port
-getBuffer();
+//getBuffer();
 // listen for incoming clients
 EthernetClient client = server.available();
 if (client) {
@@ -210,9 +210,9 @@ if (client) {
             client.println();
             //Create a json formatted string and output the values to the webclient
             curtime = now(); //get the current time
-            String data = "{\"coordlocal\":{\"lon\":000,\"lat\":000},\"weather\":{\"temp\":"+String(Temperature())+",\"pressure\":"
+            String data = "{\"coordlocal\":{\"lon\":-32.000757,\"lat\":115.869983},\"weather\":{\"temp\":"+String(Temperature())+",\"pressure\":"
             +String(BarPressure())+",\"humidity\":"+String(Humidity())+"},\"wind\":{\"localspeed\":"+String(WindSpeedAverage())+",\"localgust\":"
-            +String(WindSpeedMax())+",\"localdeg\":"+String(WindDirection())+",\"cardinal\":\""+GetCardinal()+"\"},\"rain\":{\"1h\":"+String(RainfallOneHour())+",\"24h\":"
+            +String(WindSpeedMax())+",\"localdeg\":"+String(WindDirection())+",\"cardinal\":\""+GetCardinal()+"\"},\"localrain\":{\"1h\":"+String(RainfallOneHour())+",\"24h\":"
             +String(RainfallOneDay())+"},\"localdt\":"+String(curtime)+"}";
             client.println(data);
             break;
