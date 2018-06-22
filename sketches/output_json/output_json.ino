@@ -181,10 +181,10 @@ if (client) {
             client.println();
             //Create a json formatted string and output the values to the webclient
             curtime = now(); //get the current time
-            String data = "{\"coord\":{\"lon\":000,\"lat\":000},\"weather\":{\"temp\":"+String(Temperature())+",\"pressure\":"
-            +String(BarPressure())+",\"humidity\":"+String(Humidity())+"},\"wind\":{\"speed\":"+String(WindSpeedAverage())+",\"gust\":"
-            +String(WindSpeedMax())+",\"deg\":"+String(WindDirection())+"},\"rain\":{\"1h\":"+String(RainfallOneHour())+",\"24h\":"
-            +String(RainfallOneDay())+"},\"dt\":"+String(curtime)+"}";
+            String data = "{\"coordlocal\":{\"lon\":000,\"lat\":000},\"weather\":{\"temp\":"+String(Temperature())+",\"pressure\":"
+            +String(BarPressure())+",\"humidity\":"+String(Humidity())+"},\"wind\":{\"localspeed\":"+String(WindSpeedAverage())+",\"localgust\":"
+            +String(WindSpeedMax())+",\"localdeg\":"+String(WindDirection())+"},\"rain\":{\"1h\":"+String(RainfallOneHour())+",\"24h\":"
+            +String(RainfallOneDay())+"},\"localdt\":"+String(curtime)+"}";
             client.println(data);
             break;
         }

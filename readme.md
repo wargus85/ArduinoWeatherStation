@@ -12,8 +12,8 @@ The premise is simple enough: A homebrew weather station that exports a JSON of 
 
 ## Code included in the project/Instructions.
 
-I assume you already have an ELK stack on a Linux box somewhere, and that your arduino is connect to it via the network. Having said that, you don't necesarily need ELK. If you know what you're doing with python, you could just as easily read the JSON and do what you will. I like the ELK stack because (after a steep learning curve) it's easy to create graphs of the data.
+I assume you already have an ELK stack on a Linux box somewhere, and that your arduino is connect to it via the network. Having said that, you don't necessarily need ELK. If you know what you're doing with python, you could just as easily read the JSON and do what you will. I like the ELK stack because (after a steep learning curve) it's easy to create graphs of the data.
 
-The conf.d directory contains the logstash configuration piplines you'll need in order to pull the data in from the solar inverter and arduino weather station. The pipelines.yml file contains the pipelines for logstash.
+The conf.d directory contains the logstash configuration pipelines you'll need in order to pull the data in from the solar inverter and arduino weather station. The pipelines.yml file contains the pipelines for logstash.
 
 The Sketches directory contains the sketch you'll need to push to your arduino. You may need to download the latest arduino IDE and the time library which is necessary to get the correct time via the network.
