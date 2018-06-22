@@ -24,6 +24,7 @@ double temp;
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 unsigned long epoch;
 time_t curtime;
+String Cardinal = "N";
 
 EthernetServer server(80);
 
@@ -135,6 +136,34 @@ float BarPressure()                                                             
   temp = transCharToInt(databuffer,28,32);
   return temp / 10.00;
 }
+String GetCardinal()
+{
+  if (WindDirection() >= 0 && WindDirection() <= 22.5 || WindDirection() >= 337.5){
+    Cardinal = "N";
+  }
+  if (WindDirection() > 22.5 && WindDirection() <= 67.5 ) {
+    Cardinal = "NE";
+  }
+  if (WindDirection() > 67.5 && WindDirection() <= 112.5 ) {
+    Cardinal = "E";
+  }
+  if (WindDirection() > 112.5 && WindDirection() <= 157.5 ) {
+    Cardinal = "SE";
+  }
+  if (WindDirection() > 157.5 && WindDirection() <= 202.5 ) {
+    Cardinal = "S";
+  }
+  if (WindDirection() > 202.5 && WindDirection() <= 247.5 ) {
+    Cardinal = "SW";
+  }
+  if (WindDirection() > 247.5 && WindDirection() <= 292.5 ) {
+    Cardinal = "W";
+  }
+  if (WindDirection() > 292.5 && WindDirection() <= 337.5 ) {
+    Cardinal = "NW";
+  }
+  return Cardinal;
+}
 
 void setup(){
   // start the Ethernet connection and the server:
@@ -183,7 +212,7 @@ if (client) {
             curtime = now(); //get the current time
             String data = "{\"coordlocal\":{\"lon\":000,\"lat\":000},\"weather\":{\"temp\":"+String(Temperature())+",\"pressure\":"
             +String(BarPressure())+",\"humidity\":"+String(Humidity())+"},\"wind\":{\"localspeed\":"+String(WindSpeedAverage())+",\"localgust\":"
-            +String(WindSpeedMax())+",\"localdeg\":"+String(WindDirection())+"},\"rain\":{\"1h\":"+String(RainfallOneHour())+",\"24h\":"
+            +String(WindSpeedMax())+",\"localdeg\":"+String(WindDirection())+",\"cardinal\":\""+GetCardinal()+"\"},\"rain\":{\"1h\":"+String(RainfallOneHour())+",\"24h\":"
             +String(RainfallOneDay())+"},\"localdt\":"+String(curtime)+"}";
             client.println(data);
             break;
