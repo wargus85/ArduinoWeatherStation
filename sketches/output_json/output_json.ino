@@ -170,6 +170,7 @@ void setup(){
   Ethernet.begin(mac) == 0;
   server.begin();
   Udp.begin(localPort);
+  Serial.begin(9600);
   sendNTPpacket(timeServer);
 delay(1000);
 if (Udp.parsePacket()) {
@@ -190,15 +191,17 @@ if (Udp.parsePacket()) {
 void loop(){
 
 //pull the data from the serial port
-//getBuffer();
+
 // listen for incoming clients
 EthernetClient client = server.available();
 if (client) {
+    
     // an http request ends with a blank line
     boolean currentLineIsBlank = true;
     while (client.connected()) {
       if (client.available()) {
         char c = client.read();
+        
         // if you've gotten to the end of the line (received a newline
         // character) and the line is blank, the http request has ended,
         // so you can send a reply
@@ -210,7 +213,12 @@ if (client) {
             client.println();
             //Create a json formatted string and output the values to the webclient
             curtime = now(); //get the current time
-            String data = "{\"coordlocal\":{\"lon\":-32.000757,\"lat\":115.869983},\"weather\":{\"temp\":"+String(Temperature())+",\"pressure\":"
+            getBuffer(); //get data from the sensors
+            //check the data from the sensors, if it's out of reasonable bounds, pull the data again.
+            while (BarPressure() > 1090 || BarPressure() <  860) { //1085 was the highest high pressure recoreded, 850 the lowest
+              getBuffer();
+            }
+            String data = "{\"coordlocal\":{\"lon\":115.86,\"lat\":-32.00},\"weather\":{\"temp\":"+String(Temperature())+",\"pressure\":"
             +String(BarPressure())+",\"humidity\":"+String(Humidity())+"},\"wind\":{\"localspeed\":"+String(WindSpeedAverage())+",\"localgust\":"
             +String(WindSpeedMax())+",\"localdeg\":"+String(WindDirection())+",\"cardinal\":\""+GetCardinal()+"\"},\"localrain\":{\"1h\":"+String(RainfallOneHour())+",\"24h\":"
             +String(RainfallOneDay())+"},\"localdt\":"+String(curtime)+"}";
