@@ -215,7 +215,7 @@ if (client) {
             curtime = now(); //get the current time
             getBuffer(); //get data from the sensors
             //check the data from the sensors, if it's out of reasonable bounds, pull the data again.
-            while (BarPressure() > 1090 || BarPressure() <  860) { //1085 was the highest high pressure recoreded, 850 the lowest
+            while (BarPressure() > 1090 || BarPressure() <  990 && Temperature() > 55 || Temperature() < -5 ) { //1085 was the highest high pressure recoreded, 850 the lowest
               getBuffer();
             }
             String data = "{\"coordlocal\":{\"lon\":115.86,\"lat\":-32.00},\"weather\":{\"temp\":"+String(Temperature())+",\"pressure\":"
