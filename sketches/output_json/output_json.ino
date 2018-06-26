@@ -25,6 +25,7 @@ byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 unsigned long epoch;
 time_t curtime;
 String Cardinal = "N";
+float lastPressure;
 
 EthernetServer server(80);
 
@@ -215,9 +216,15 @@ if (client) {
             curtime = now(); //get the current time
             getBuffer(); //get data from the sensors
             //check the data from the sensors, if it's out of reasonable bounds, pull the data again.
-            while (BarPressure() > 1090 || BarPressure() <  990 && Temperature() > 55 || Temperature() < -5 ) { //1085 was the highest high pressure recoreded, 850 the lowest
+            while (BarPressure() > 1040 || BarPressure() <  980 && Temperature() > 55 || Temperature() < -5 && Humidity() < 100 || Humidity() > 20) { //you may need to adjust this to your local area
               getBuffer();
+              lastPressure = BarPressure();
+              getBuffer();
+              if (BarPressure() > (lastPressure +5) || BarPressure() < (lastPressure -5)) {
+                getBuffer();
+              }
             }
+
             String data = "{\"coordlocal\":{\"lon\":115.86,\"lat\":-32.00},\"weather\":{\"temp\":"+String(Temperature())+",\"pressure\":"
             +String(BarPressure())+",\"humidity\":"+String(Humidity())+"},\"wind\":{\"localspeed\":"+String(WindSpeedAverage())+",\"localgust\":"
             +String(WindSpeedMax())+",\"localdeg\":"+String(WindDirection())+",\"cardinal\":\""+GetCardinal()+"\"},\"localrain\":{\"1h\":"+String(RainfallOneHour())+",\"24h\":"
