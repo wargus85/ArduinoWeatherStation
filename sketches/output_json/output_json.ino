@@ -25,7 +25,10 @@ byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 unsigned long epoch;
 time_t curtime;
 String Cardinal = "N";
-float lastPressure;
+float lastPressure; //variables for error checking
+float lastHumidity;
+float lastTemperature;
+bool NotAccurate = true;
 
 EthernetServer server(80);
 
@@ -216,14 +219,33 @@ if (client) {
             curtime = now(); //get the current time
             getBuffer(); //get data from the sensors
             //check the data from the sensors, if it's out of reasonable bounds, pull the data again.
-            while (BarPressure() > 1040 || BarPressure() <  980 && Temperature() > 55 || Temperature() < -5 && Humidity() < 100 || Humidity() > 20) { //you may need to adjust this to your local area
-              getBuffer();
-              lastPressure = BarPressure();
-              getBuffer();
-              if (BarPressure() > (lastPressure +5) || BarPressure() < (lastPressure -5)) {
+            while (NotAccurate) {
+              //Check the data is within range
+              while (BarPressure() > 1040 || BarPressure() <  980 || Temperature() > 55 || Temperature() < -5 || Humidity() < 100 || Humidity() > 20) {
+                //its not in range, so try again
+                delay(1);
                 getBuffer();
               }
+              //now it is in range, so compare it to the last value.
+              //this is our first set of data, so lets check it again.
+              lastPressure = BarPressure();
+              lastTemperature = Temperature();
+              lastHumidity = Humidity();
+              delay(1);
+              getBuffer();
+              if (BarPressure() > (lastPressure +5 ) || BarPressure() < (lastPressure -5 ) || Temperature() > (lastTemperature + 5) || Temperature() < (lastTemperature -5 ) || Humidity() < (lastHumidity -2 ) || Humidity() > (lastHumidity +2 )) {
+                //Our data is bad, so try again
+                delay(1);
+                getBuffer();
+              }
+              else {
+                //our data is good, so leave the loops
+                NotAccurate = false;
+              }
+            //exit the while loop
             }
+            //Set the data to dirty for the next run through.
+            NotAccurate = true;
 
             String data = "{\"coordlocal\":{\"lon\":115.86,\"lat\":-32.00},\"weather\":{\"temp\":"+String(Temperature())+",\"pressure\":"
             +String(BarPressure())+",\"humidity\":"+String(Humidity())+"},\"wind\":{\"localspeed\":"+String(WindSpeedAverage())+",\"localgust\":"

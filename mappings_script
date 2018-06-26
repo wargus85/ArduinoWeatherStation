@@ -34,3 +34,64 @@ PUT  /weather/_mappings/doc
             }
         }
 GET weather
+
+
+
+// Code snippets for removing and searching for faulty data:
+
+GET _search
+{
+  "query": {
+    "match_all": {}
+  }
+}
+DELETE /filebeat-*
+DELETE /metricbeat-*
+
+GET /weather*
+
+GET /weather/_search/
+{
+  "query": {
+    "term": {
+      "tag":"bad_request"
+    }
+  }
+}
+
+GET /weather/_search
+{
+    "query" : {
+        "term" : { "weather.temp" : >0 }
+    }
+}
+GET /weather/_search?q=weather.temp:"-17.78"
+
+POST weather/_delete_by_query
+{
+    "query" : {
+        "term" : { "weather.temp" : "-17.78" }
+    }
+}
+
+POST weather/_delete_by_query
+{
+    "query": {
+        "range" : {
+            "weather.pressure" : {
+                "lte" : 984.8
+            }
+        }
+    }
+}
+
+POST weather/_delete_by_query
+{
+    "query": {
+        "range" : {
+            "localrain.24h" : {
+                "gte" : 0.1
+            }
+        }
+    }
+}
