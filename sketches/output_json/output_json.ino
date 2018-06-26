@@ -217,41 +217,41 @@ if (client) {
             client.println();
             //Create a json formatted string and output the values to the webclient
             curtime = now(); //get the current time
-            getBuffer(); //get data from the sensors
+
             //check the data from the sensors, if it's out of reasonable bounds, pull the data again.
-            while (NotAccurate) {
+            do  {
+              getBuffer();
               //Check the data is within range
-              while (BarPressure() > 1040 || BarPressure() <  980 || Temperature() > 55 || Temperature() < -5 || Humidity() < 100 || Humidity() > 20) {
+              while (BarPressure() > 1040 && BarPressure() <  980 ) //|| Temperature() > 55 && Temperature() < -5 || Humidity() < 100 && Humidity() > 20) {
                 //its not in range, so try again
-                delay(1);
                 getBuffer();
               }
               //now it is in range, so compare it to the last value.
               //this is our first set of data, so lets check it again.
               lastPressure = BarPressure();
-              lastTemperature = Temperature();
-              lastHumidity = Humidity();
-              delay(1);
+              //lastTemperature = Temperature();
+              //lastHumidity = Humidity();
               getBuffer();
-              if (BarPressure() > (lastPressure +5 ) || BarPressure() < (lastPressure -5 ) || Temperature() > (lastTemperature + 5) || Temperature() < (lastTemperature -5 ) || Humidity() < (lastHumidity -2 ) || Humidity() > (lastHumidity +2 )) {
+              if (BarPressure() > (lastPressure +5 ) && BarPressure() < (lastPressure -5 )) //|| Temperature() > (lastTemperature + 5) && Temperature() < (lastTemperature -5 ) || Humidity() < (lastHumidity -2 ) && Humidity() > (lastHumidity +2 )) {
                 //Our data is bad, so try again
-                delay(1);
-                getBuffer();
+                NotAccurate = true;
               }
               else {
                 //our data is good, so leave the loops
                 NotAccurate = false;
+                break;
               }
-            //exit the while loop
-            }
-            //Set the data to dirty for the next run through.
-            NotAccurate = true;
-
+              //exit the while loop
+            } while (NotAccurate == true);
+            
+            //output the data
             String data = "{\"coordlocal\":{\"lon\":115.86,\"lat\":-32.00},\"weather\":{\"temp\":"+String(Temperature())+",\"pressure\":"
             +String(BarPressure())+",\"humidity\":"+String(Humidity())+"},\"wind\":{\"localspeed\":"+String(WindSpeedAverage())+",\"localgust\":"
             +String(WindSpeedMax())+",\"localdeg\":"+String(WindDirection())+",\"cardinal\":\""+GetCardinal()+"\"},\"localrain\":{\"1h\":"+String(RainfallOneHour())+",\"24h\":"
             +String(RainfallOneDay())+"},\"localdt\":"+String(curtime)+"}";
             client.println(data);
+            
+
             break;
         }
         if (c == '\n') {
@@ -264,7 +264,7 @@ if (client) {
       }
     }
     // give the web browser time to receive the data
-    delay(1);
+    delay(500);
     // close the connection:
     client.stop();
   }
