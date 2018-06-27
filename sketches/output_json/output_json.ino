@@ -26,8 +26,8 @@ unsigned long epoch;
 time_t curtime;
 String Cardinal = "N";
 float lastPressure; //variables for error checking
-float lastHumidity;
-float lastTemperature;
+//float lastHumidity;
+//float lastTemperature;
 bool NotAccurate = true;
 
 EthernetServer server(80);
@@ -193,9 +193,6 @@ if (Udp.parsePacket()) {
 }
 
 void loop(){
-
-//pull the data from the serial port
-
 // listen for incoming clients
 EthernetClient client = server.available();
 if (client) {
@@ -217,32 +214,42 @@ if (client) {
             client.println();
             //Create a json formatted string and output the values to the webclient
             curtime = now(); //get the current time
-
-            //check the data from the sensors, if it's out of reasonable bounds, pull the data again.
-            do  {
+            getBuffer();
+            while (BarPressure() > 1040 && BarPressure() <  980 ) {
+              //data is not in range
               getBuffer();
+            }
+            //lastPressure  = BarPressure();
+            //getBuffer();
+            //while (BarPressure() > (lastPressure +5) && BarPressure() < (lastPressure -5) ) {
+              //our data is bad
+            //  getBuffer();
+            //}
+            //check the data from the sensors, if it's out of reasonable bounds, pull the data again.
+           // do  {
+            //  getBuffer();
               //Check the data is within range
-              while (BarPressure() > 1040 && BarPressure() <  980 ) //|| Temperature() > 55 && Temperature() < -5 || Humidity() < 100 && Humidity() > 20) {
+           //   while (BarPressure() < 1040 && BarPressure() >  980 ){ //|| Temperature() > 55 && Temperature() < -5 || Humidity() < 100 && Humidity() > 20) {
                 //its not in range, so try again
-                getBuffer();
-              }
+             //   getBuffer();
+            //  }
               //now it is in range, so compare it to the last value.
               //this is our first set of data, so lets check it again.
-              lastPressure = BarPressure();
+             // lastPressure = BarPressure();
               //lastTemperature = Temperature();
               //lastHumidity = Humidity();
-              getBuffer();
-              if (BarPressure() > (lastPressure +5 ) && BarPressure() < (lastPressure -5 )) //|| Temperature() > (lastTemperature + 5) && Temperature() < (lastTemperature -5 ) || Humidity() < (lastHumidity -2 ) && Humidity() > (lastHumidity +2 )) {
+            //  getBuffer();
+           //   if (BarPressure() > (lastPressure +5 ) && BarPressure() < (lastPressure -5 )){ //|| Temperature() > (lastTemperature + 5) && Temperature() < (lastTemperature -5 ) || Humidity() < (lastHumidity -2 ) && Humidity() > (lastHumidity +2 )) {
                 //Our data is bad, so try again
-                NotAccurate = true;
-              }
-              else {
+            //    NotAccurate = true;
+            //  }
+            //  else {
                 //our data is good, so leave the loops
-                NotAccurate = false;
-                break;
-              }
+            //    NotAccurate = false;
+                //break;
+            //  }
               //exit the while loop
-            } while (NotAccurate == true);
+            //} while (NotAccurate == true);
             
             //output the data
             String data = "{\"coordlocal\":{\"lon\":115.86,\"lat\":-32.00},\"weather\":{\"temp\":"+String(Temperature())+",\"pressure\":"
@@ -250,7 +257,8 @@ if (client) {
             +String(WindSpeedMax())+",\"localdeg\":"+String(WindDirection())+",\"cardinal\":\""+GetCardinal()+"\"},\"localrain\":{\"1h\":"+String(RainfallOneHour())+",\"24h\":"
             +String(RainfallOneDay())+"},\"localdt\":"+String(curtime)+"}";
             client.println(data);
-            
+            //set the data to dirty
+            NotAccurate = true;
 
             break;
         }
@@ -264,7 +272,7 @@ if (client) {
       }
     }
     // give the web browser time to receive the data
-    delay(500);
+    delay(1);
     // close the connection:
     client.stop();
   }
