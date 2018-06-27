@@ -215,7 +215,7 @@ if (client) {
             //Create a json formatted string and output the values to the webclient
             curtime = now(); //get the current time
             getBuffer();
-            while (BarPressure() > 1040 && BarPressure() <  980 ) {
+            while (BarPressure() > 1040 || BarPressure() <  980 ) {
               //data is not in range
               getBuffer();
             }
