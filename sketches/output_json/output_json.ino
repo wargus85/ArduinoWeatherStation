@@ -25,10 +25,14 @@ byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 unsigned long epoch;
 time_t curtime;
 String Cardinal = "N";
-float lastPressure; //variables for error checking
-//float lastHumidity;
-//float lastTemperature;
 bool NotAccurate = true;
+
+float BarMax;
+float BarMin;
+float TempMax;
+float TempMin;
+float HumidMax;
+float HumidMin;
 
 EthernetServer server(80);
 
@@ -140,30 +144,30 @@ float BarPressure()                                                             
   temp = transCharToInt(databuffer,28,32);
   return temp / 10.00;
 }
-String GetCardinal()
+String GetCardinal() //Cardinal directions. The sensors only report 8 values.
 {
-  if (WindDirection() >= 0 && WindDirection() <= 22.5 || WindDirection() >= 337.5){
+  if (WindDirection() == 0 ){
     Cardinal = "N";
   }
-  if (WindDirection() > 22.5 && WindDirection() <= 67.5 ) {
+  if (WindDirection() == 45 ) {
     Cardinal = "NE";
   }
-  if (WindDirection() > 67.5 && WindDirection() <= 112.5 ) {
+  if (WindDirection() == 90 ) {
     Cardinal = "E";
   }
-  if (WindDirection() > 112.5 && WindDirection() <= 157.5 ) {
+  if (WindDirection() == 135 ) {
     Cardinal = "SE";
   }
-  if (WindDirection() > 157.5 && WindDirection() <= 202.5 ) {
+  if (WindDirection() == 180 ) {
     Cardinal = "S";
   }
-  if (WindDirection() > 202.5 && WindDirection() <= 247.5 ) {
+  if (WindDirection() == 225 ) {
     Cardinal = "SW";
   }
-  if (WindDirection() > 247.5 && WindDirection() <= 292.5 ) {
+  if (WindDirection() == 270 ) {
     Cardinal = "W";
   }
-  if (WindDirection() > 292.5 && WindDirection() <= 337.5 ) {
+  if (WindDirection() == 315 ) {
     Cardinal = "NW";
   }
   return Cardinal;
@@ -176,19 +180,18 @@ void setup(){
   Udp.begin(localPort);
   Serial.begin(9600);
   sendNTPpacket(timeServer);
-delay(1000);
-if (Udp.parsePacket()) {
-  // We've received a packet, read the data from it
-  Udp.read(packetBuffer, NTP_PACKET_SIZE); // read the packet into the buffer
-  unsigned long highWord = word(packetBuffer[40], packetBuffer[41]);
-  unsigned long lowWord = word(packetBuffer[42], packetBuffer[43]);
-  unsigned long secsSince1900 = highWord << 16 | lowWord;
-  const unsigned long seventyYears = 2208988800UL;
-  epoch = secsSince1900 - seventyYears;
-    delay(10000);
-  //Ethernet.maintain();
-  setTime(epoch);
-}
+  delay(1000);
+  if (Udp.parsePacket()) {
+    // We've received a packet, read the data from it
+    Udp.read(packetBuffer, NTP_PACKET_SIZE); // read the packet into the buffer
+    unsigned long highWord = word(packetBuffer[40], packetBuffer[41]);
+    unsigned long lowWord = word(packetBuffer[42], packetBuffer[43]);
+    unsigned long secsSince1900 = highWord << 16 | lowWord;
+    const unsigned long seventyYears = 2208988800UL;
+    epoch = secsSince1900 - seventyYears;
+    delay(1000);
+    setTime(epoch);
+  }
 
 }
 
@@ -207,60 +210,70 @@ if (client) {
         // character) and the line is blank, the http request has ended,
         // so you can send a reply
         if (c == '\n' && currentLineIsBlank) {
-            //Tell the client this is a JSON
-            client.println("HTTP/1.1 200 OK");
-            client.println("Content-Type: application/json; charset=utf-8");
-            client.println("Connection: keep-alive");
-            client.println();
-            //Create a json formatted string and output the values to the webclient
-            curtime = now(); //get the current time
-            getBuffer();
-            while (BarPressure() > 1040 || BarPressure() <  980 ) {
-              //data is not in range
-              getBuffer();
-            }
-            //lastPressure  = BarPressure();
-            //getBuffer();
-            //while (BarPressure() > (lastPressure +5) && BarPressure() < (lastPressure -5) ) {
-              //our data is bad
-            //  getBuffer();
-            //}
-            //check the data from the sensors, if it's out of reasonable bounds, pull the data again.
-           // do  {
-            //  getBuffer();
-              //Check the data is within range
-           //   while (BarPressure() < 1040 && BarPressure() >  980 ){ //|| Temperature() > 55 && Temperature() < -5 || Humidity() < 100 && Humidity() > 20) {
-                //its not in range, so try again
-             //   getBuffer();
-            //  }
-              //now it is in range, so compare it to the last value.
-              //this is our first set of data, so lets check it again.
-             // lastPressure = BarPressure();
-              //lastTemperature = Temperature();
-              //lastHumidity = Humidity();
-            //  getBuffer();
-           //   if (BarPressure() > (lastPressure +5 ) && BarPressure() < (lastPressure -5 )){ //|| Temperature() > (lastTemperature + 5) && Temperature() < (lastTemperature -5 ) || Humidity() < (lastHumidity -2 ) && Humidity() > (lastHumidity +2 )) {
-                //Our data is bad, so try again
-            //    NotAccurate = true;
-            //  }
-            //  else {
-                //our data is good, so leave the loops
-            //    NotAccurate = false;
-                //break;
-            //  }
-              //exit the while loop
-            //} while (NotAccurate == true);
-            
-            //output the data
-            String data = "{\"coordlocal\":{\"lon\":115.86,\"lat\":-32.00},\"weather\":{\"temp\":"+String(Temperature())+",\"pressure\":"
-            +String(BarPressure())+",\"humidity\":"+String(Humidity())+"},\"wind\":{\"localspeed\":"+String(WindSpeedAverage())+",\"localgust\":"
-            +String(WindSpeedMax())+",\"localdeg\":"+String(WindDirection())+",\"cardinal\":\""+GetCardinal()+"\"},\"localrain\":{\"1h\":"+String(RainfallOneHour())+",\"24h\":"
-            +String(RainfallOneDay())+"},\"localdt\":"+String(curtime)+"}";
-            client.println(data);
-            //set the data to dirty
-            NotAccurate = true;
+          //Tell the client this is a JSON
+          client.println("HTTP/1.1 200 OK");
+          client.println("Content-Type: application/json; charset=utf-8");
+          client.println("Connection: keep-alive");
+          client.println();
 
-            break;
+          curtime = now(); //get the current time
+          
+          do {
+            //get the data and test it is range
+            getBuffer();
+            while (BarPressure() >= 1041 || BarPressure() <=  979 || Temperature() >= 55 || Temperature() <= -5 || Humidity() > 100 || Humidity() < 0 ) {
+            //data is not in range
+            delay(250);
+            getBuffer();
+            }
+            //Now the data is in range, we need to save the data values and compare it. Only once.
+            //If it's bad, then try it all again.
+            BarMax = (BarPressure() +5);
+            BarMin = (BarPressure() -5);
+            TempMax = (Temperature() +5);
+            TempMin = (Temperature() -5);
+            HumidMax = (Humidity() +5);
+            HumidMin = (Humidity() -5);
+            
+            getBuffer();
+
+            while (BarPressure() >= 1041 || BarPressure() <=  979 || Temperature() >= 55 || Temperature() <= -5 || Humidity() > 100 || Humidity() < 0 ) {
+            //data is not in range
+            delay(250);
+            getBuffer();
+            }
+            
+            if (BarPressure() > BarMax || BarPressure() < BarMin || Temperature() > TempMax || Temperature() < TempMin || Humidity() > HumidMax || Humidity() < HumidMin ) {
+              //our data is bad
+              NotAccurate = true;
+            }
+            else {
+              //our data is good
+              NotAccurate = false;
+            }
+
+          }while (NotAccurate);
+          
+          //Create a json formatted string
+          String data = "{\"coordlocal\":{\"lon\":115.86,\"lat\":-32.00},\"weather\":{\"temp\":"
+          +String(Temperature())+",\"pressure\":"
+          +String(BarPressure())+",\"humidity\":"
+          +String(Humidity())+"},\"wind\":{\"localspeed\":"
+          +String(WindSpeedAverage())+",\"localgust\":"
+          +String(WindSpeedMax())+",\"localdeg\":"
+          +String(WindDirection())+",\"cardinal\":\""
+          +GetCardinal()+"\"},\"localrain\":{\"1h\":"
+          +String(RainfallOneHour())+",\"24h\":"
+          +String(RainfallOneDay())+"},\"localdt\":"
+          +String(curtime)+"}";
+          
+          //send the data to the webclient
+          client.println(data);
+          
+          //set the data to dirty
+          NotAccurate = true;
+
+          break;
         }
         if (c == '\n') {
           // you're starting a new line
@@ -272,8 +285,9 @@ if (client) {
       }
     }
     // give the web browser time to receive the data
-    delay(1);
+    delay(250);
     // close the connection:
     client.stop();
   }
+  Ethernet.maintain(); //renew the dhcp lease if necessary
 }
