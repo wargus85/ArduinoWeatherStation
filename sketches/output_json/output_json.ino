@@ -263,8 +263,8 @@ if (client) {
           +String(WindSpeedMax())+",\"localdeg\":"
           +String(WindDirection())+",\"cardinal\":\""
           +GetCardinal()+"\"},\"localrain\":{\"1h\":"
-          +String(RainfallOneHour())+",\"24h\":"
-          +String(RainfallOneDay())+"},\"localdt\":"
+          +String((int)RainfallOneHour())+",\"24h\":"
+          +String((int)RainfallOneDay())+"},\"localdt\":"
           +String(curtime)+"}";
           
           //send the data to the webclient
