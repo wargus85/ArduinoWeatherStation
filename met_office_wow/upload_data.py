@@ -47,7 +47,7 @@ tempf = (Data["weather"]["temp"]*1.8)+32
 rainin = (Data["localrain"]["1h"])/25.4
 dailyrainin = (Data["localrain"]["24h"])/25/4
 
-# We only want to report the rain every hour and the total rain at 6am every day, otherwise don't report the rain.
+# We only want to report the rainfall total every day at 6am, otherwise don't report the rain.
 
 if int(time.strftime("%M",time.gmtime()))==0:
     DataURL = BaseURL+"siteid="+SiteId+"&siteAuthenticationKey="+AuthKey+"&dateutc="+localdt+"&winddir="+str(Data["wind"]["localdeg"])+"&windspeedmph="+str(windspeed)+"&windgustmph="+str(windgust)+"&humidity="+str(Data["weather"]["humidity"])+"&tempf="+str(tempf)+"&baromin="+str(baromin)+"&rainin="+str(rainin)+"&softwaretype="+SoftwareType
@@ -55,7 +55,8 @@ if int(time.strftime("%M",time.gmtime()))==0:
     if int(time.strftime("%H",time.gmtime()))==6:
             DataURL = BaseURL+"siteid="+SiteId+"&siteAuthenticationKey="+AuthKey+"&dateutc="+localdt+"&winddir="+str(Data["wind"]["localdeg"])+"&windspeedmph="+str(windspeed)+"&windgustmph="+str(windgust)+"&humidity="+str(Data["weather"]["humidity"])+"&tempf="+str(tempf)+"&baromin="+str(baromin)+"&rainin="+str(rainin)+"&dailyrainin="+str(dailyrainin)+"&softwaretype="+SoftwareType
 else:
-    DataURL = BaseURL+"siteid="+SiteId+"&siteAuthenticationKey="+AuthKey+"&dateutc="+localdt+"&winddir="+str(Data["wind"]["localdeg"])+"&windspeedmph="+str(windspeed)+"&windgustmph="+str(windgust)+"&humidity="+str(Data["weather"]["humidity"])+"&tempf="+str(tempf)+"&baromin="+str(baromin)+"&softwaretype="+SoftwareType
+    DataURL = BaseURL+"siteid="+SiteId+"&siteAuthenticationKey="+AuthKey+"&dateutc="+localdt+"&winddir="+str(Data["wind"]["localdeg"])+"&windspeedmph="+str(windspeed)+"&windgustmph="+str(windgust)+"&humidity="+str(Data["weather"]["humidity"])+"&tempf="+str(tempf)+"&baromin="+str(baromin)+"&rainin="+str(rainin)+"&softwaretype="+SoftwareType
+
 
 #print(testData)
 print(DataURL)
