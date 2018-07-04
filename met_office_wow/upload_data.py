@@ -4,8 +4,8 @@
 # as detailed on the project page on my blog (links in the readme).
 # You will need to add in your own SiteID and Authkey, which are available on your WOW site.
 # This script will report the current temperature, wind information, humidity, and rainfall.
-# If you run your script as indicated below it will run every 5 minutes. The rainfall is only reported every hour
-# and the total rainfall only reported every 24hrs at 6am GMT.
+# If you run your script as indicated below it will run every 5 minutes. 
+# # The total rainfall only reported every 24hrs at 6am GMT.
 
 # Installing: Edit your crontab with the following entry:
 # */5 * * * * /path/to/script/upload_data.py
