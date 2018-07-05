@@ -81,3 +81,4 @@ print(DataURL)
 #WOW expects a GET to the full url
 
 #requestWow = requests.get(url=DataURL)
+https://stackoverflow.com/questions/13949637/how-to-update-json-file-with-python
