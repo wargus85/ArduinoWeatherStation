@@ -33,9 +33,9 @@ localdt = date+"+"+hours+"%3A"+minutes+"%3A"+seconds
 
 # Request the data from the Arduino and save it to a new variable.
 # We aren't doing any error checking, just hoping the data is correct and present.
-# Edit the url to point to your arduino
-#request = requests.get(url=ArduinoURL)
+request = requests.get(url=ArduinoURL)
 Data = request.json()
+
 #convert the windspeed in m/s to miles per hour for reporting:
 windspeed = Data["wind"]["localspeed"]*2.236936
 windgust = Data["wind"]["localgust"]*2.236936
@@ -55,19 +55,22 @@ if int(time.strftime("%M",time.gmtime()))==0:
     with open('raintotal.json','r+') as openfile:
         RainJson = json.load(openfile)
         RainJson["totalrain"] = RainJson["totalrain"] + rainin
+        openfile.seek(0)
         json.dump(RainJson,openfile)
+        openfile.truncate()
     dailyrainin = RainJson["totalrain"]
     DataURL = BaseURL+"siteid="+SiteId+"&siteAuthenticationKey="+AuthKey+"&dateutc="+localdt+"&winddir="+str(Data["wind"]["localdeg"])+"&windspeedmph="+str(windspeed)+"&windgustmph="+str(windgust)+"&humidity="+str(Data["weather"]["humidity"])+"&tempf="+str(tempf)+"&baromin="+str(baromin)+"&rainin="+str(rainin)+"&dailyrainin="+str(dailyrainin)+"&softwaretype="+SoftwareType
     
-    #now check if it is 9am, if so, set the dailyrainin to rainin
-    if int(time.strftime("%H",time.gmtime()))==9:
-        DataURL = BaseURL+"siteid="+SiteId+"&siteAuthenticationKey="+AuthKey+"&dateutc="+localdt+"&winddir="+str(Data["wind"]["localdeg"])+"&windspeedmph="+str(windspeed)+"&windgustmph="+str(windgust)+"&humidity="+str(Data["weather"]["humidity"])+"&tempf="+str(tempf)+"&baromin="+str(baromin)+"&rainin="+str(rainin)+"&dailyrainin="+str(rainin)+"&softwaretype="+SoftwareType
-        # zero out the file
-        with open('raintotal.json','r+') as writefile:
-            RainJson = json.load(writefile)
-            RainJson["totalrain"]=0
-            json.dump(RainJson,writefile)
-
+#now check if it is 9am, if so, set the dailyrainin to rainin
+elif int(time.strftime("%H",time.gmtime()))==9 and int(time.strftime("%M",time.gmtime()))==0:
+    DataURL = BaseURL+"siteid="+SiteId+"&siteAuthenticationKey="+AuthKey+"&dateutc="+localdt+"&winddir="+str(Data["wind"]["localdeg"])+"&windspeedmph="+str(windspeed)+"&windgustmph="+str(windgust)+"&humidity="+str(Data["weather"]["humidity"])+"&tempf="+str(tempf)+"&baromin="+str(baromin)+"&rainin="+str(rainin)+"&dailyrainin="+str(rainin)+"&softwaretype="+SoftwareType
+    # write to the file
+    with open('raintotal.json','r+') as writefile:
+        RainJson = json.load(writefile)
+        RainJson["totalrain"] = rainin
+        writefile.seek(0)
+        json.dump(RainJson,writefile)
+        writefile.truncate()
 else:
     #just open the file and read the rain, don't edit it.
     with open('raintotal.json','r') as openfile:
@@ -81,4 +84,3 @@ print(DataURL)
 #WOW expects a GET to the full url
 
 #requestWow = requests.get(url=DataURL)
-https://stackoverflow.com/questions/13949637/how-to-update-json-file-with-python
