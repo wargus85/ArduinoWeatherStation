@@ -5,7 +5,7 @@
 # You will need to add in your own SiteID and Authkey, which are available on your WOW site.
 # This script will report the current temperature, wind information, humidity, and rainfall.
 # If you run your script as indicated below it will run every 5 minutes. 
-# # The total rainfall only reported every 24hrs at 6am GMT.
+# The cumulative rainfall is reset at 9am GMT.
 
 # Installing: Edit your crontab with the following entry:
 # */5 * * * * /path/to/script/upload_data.py
@@ -16,10 +16,11 @@ import time
 import json
 import requests
 
-# Define some variables (you will need to edit the url to your arduino too, below)
+# Define some variables, add your own values
 SiteId = "Enter your site ID"
 AuthKey = "Enter your authkey"
-SoftwareType = "python-linux-v18-07-04.1"
+SoftwareType = "python-linux-v18-07-05.2"
+ArduinoURL = "http://192.168.1.5"
 BaseURL = "http://wow.metoffice.gov.uk/automaticreading?"
 
 # Get the date
@@ -33,10 +34,9 @@ localdt = date+"+"+hours+"%3A"+minutes+"%3A"+seconds
 # Request the data from the Arduino and save it to a new variable.
 # We aren't doing any error checking, just hoping the data is correct and present.
 # Edit the url to point to your arduino
-request = requests.get(url='http://10.60.204.181')
+#request = requests.get(url=ArduinoURL)
 Data = request.json()
-
-#convert the windspeed in m/s to mph for reporting:
+#convert the windspeed in m/s to miles per hour for reporting:
 windspeed = Data["wind"]["localspeed"]*2.236936
 windgust = Data["wind"]["localgust"]*2.236936
 #convert HPa to inches of mercury
@@ -45,22 +45,39 @@ baromin = Data["weather"]["pressure"]*0.02953
 tempf = (Data["weather"]["temp"]*1.8)+32
 #convert mm to in
 rainin = (Data["localrain"]["1h"])/25.4
-dailyrainin = (Data["localrain"]["24h"])/25/4
+dailyrainin = (Data["localrain"]["24h"])/25.4
 
-# We only want to report the rainfall total every day at 6am, otherwise don't report the rain.
+# We want to reset the rainfall total every day at 9am, then add the rainfall to that total. 
+# The cumulative total is stored in a json encoded file which is read to/from every hour
 
-if int(time.strftime("%M",time.gmtime()))==0:
-    DataURL = BaseURL+"siteid="+SiteId+"&siteAuthenticationKey="+AuthKey+"&dateutc="+localdt+"&winddir="+str(Data["wind"]["localdeg"])+"&windspeedmph="+str(windspeed)+"&windgustmph="+str(windgust)+"&humidity="+str(Data["weather"]["humidity"])+"&tempf="+str(tempf)+"&baromin="+str(baromin)+"&rainin="+str(rainin)+"&softwaretype="+SoftwareType
-    #now check if it is 6am
-    if int(time.strftime("%H",time.gmtime()))==6:
-            DataURL = BaseURL+"siteid="+SiteId+"&siteAuthenticationKey="+AuthKey+"&dateutc="+localdt+"&winddir="+str(Data["wind"]["localdeg"])+"&windspeedmph="+str(windspeed)+"&windgustmph="+str(windgust)+"&humidity="+str(Data["weather"]["humidity"])+"&tempf="+str(tempf)+"&baromin="+str(baromin)+"&rainin="+str(rainin)+"&dailyrainin="+str(dailyrainin)+"&softwaretype="+SoftwareType
+if int(time.strftime("%M",time.gmtime()))==0: 
+    #It's the top of the hour, so we need to add the rainfall to the total (after converting to inches)
+    with open('raintotal.json','r+') as openfile:
+        RainJson = json.load(openfile)
+        RainJson["totalrain"] = RainJson["totalrain"] + rainin
+        json.dump(RainJson,openfile)
+    dailyrainin = RainJson["totalrain"]
+    DataURL = BaseURL+"siteid="+SiteId+"&siteAuthenticationKey="+AuthKey+"&dateutc="+localdt+"&winddir="+str(Data["wind"]["localdeg"])+"&windspeedmph="+str(windspeed)+"&windgustmph="+str(windgust)+"&humidity="+str(Data["weather"]["humidity"])+"&tempf="+str(tempf)+"&baromin="+str(baromin)+"&rainin="+str(rainin)+"&dailyrainin="+str(dailyrainin)+"&softwaretype="+SoftwareType
+    
+    #now check if it is 9am, if so, set the dailyrainin to rainin
+    if int(time.strftime("%H",time.gmtime()))==9:
+        DataURL = BaseURL+"siteid="+SiteId+"&siteAuthenticationKey="+AuthKey+"&dateutc="+localdt+"&winddir="+str(Data["wind"]["localdeg"])+"&windspeedmph="+str(windspeed)+"&windgustmph="+str(windgust)+"&humidity="+str(Data["weather"]["humidity"])+"&tempf="+str(tempf)+"&baromin="+str(baromin)+"&rainin="+str(rainin)+"&dailyrainin="+str(rainin)+"&softwaretype="+SoftwareType
+        # zero out the file
+        with open('raintotal.json','r+') as writefile:
+            RainJson = json.load(writefile)
+            RainJson["totalrain"]=0
+            json.dump(RainJson,writefile)
+
 else:
-    DataURL = BaseURL+"siteid="+SiteId+"&siteAuthenticationKey="+AuthKey+"&dateutc="+localdt+"&winddir="+str(Data["wind"]["localdeg"])+"&windspeedmph="+str(windspeed)+"&windgustmph="+str(windgust)+"&humidity="+str(Data["weather"]["humidity"])+"&tempf="+str(tempf)+"&baromin="+str(baromin)+"&rainin="+str(rainin)+"&softwaretype="+SoftwareType
+    #just open the file and read the rain, don't edit it.
+    with open('raintotal.json','r') as openfile:
+        RainJson = json.load(openfile)
+    dailyrainin = RainJson["totalrain"]
+    DataURL = BaseURL+"siteid="+SiteId+"&siteAuthenticationKey="+AuthKey+"&dateutc="+localdt+"&winddir="+str(Data["wind"]["localdeg"])+"&windspeedmph="+str(windspeed)+"&windgustmph="+str(windgust)+"&humidity="+str(Data["weather"]["humidity"])+"&tempf="+str(tempf)+"&baromin="+str(baromin)+"&rainin="+str(rainin)+"&dailyrainin="+str(dailyrainin)+"&softwaretype="+SoftwareType
 
 
-#print(testData)
 print(DataURL)
 
 #WOW expects a GET to the full url
 
-requestWow = requests.get(url=DataURL)
+#requestWow = requests.get(url=DataURL)
