@@ -79,8 +79,6 @@ else:
     DataURL = BaseURL+"siteid="+SiteId+"&siteAuthenticationKey="+AuthKey+"&dateutc="+localdt+"&winddir="+str(Data["wind"]["localdeg"])+"&windspeedmph="+str(windspeed)+"&windgustmph="+str(windgust)+"&humidity="+str(Data["weather"]["humidity"])+"&tempf="+str(tempf)+"&baromin="+str(baromin)+"&rainin="+str(rainin)+"&dailyrainin="+str(dailyrainin)+"&softwaretype="+SoftwareType
 
 
-print(DataURL)
-
+#print(DataURL)
 #WOW expects a GET to the full url
-
-#requestWow = requests.get(url=DataURL)
+requestWow = requests.get(url=DataURL)
