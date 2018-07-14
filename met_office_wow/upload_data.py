@@ -61,7 +61,7 @@ if int(time.strftime("%M",time.gmtime()))==0:
     dailyrainin = RainJson["totalrain"]
     
 #now check if it is 9am localtime, if so, set the dailyrainin to rainin
-if int(time.strftime("%H",time.gmtime()))==17 and int(time.strftime("%M",time.gmtime()))==0:
+if int(time.strftime("%H",time.gmtime()))==1 and int(time.strftime("%M",time.gmtime()))==0:
     # write to the file
     with open('raintotal.json','r+') as writefile:
         RainJson = json.load(writefile)
