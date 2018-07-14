@@ -19,7 +19,7 @@ import requests
 # Define some variables, add your own values
 SiteId = "Enter your site ID"
 AuthKey = "Enter your authkey"
-SoftwareType = "python-linux-v18-07-05.2"
+SoftwareType = "python-linux-v18-07-14.1"
 ArduinoURL = "http://192.168.1.5"
 BaseURL = "http://wow.metoffice.gov.uk/automaticreading?"
 
@@ -59,11 +59,9 @@ if int(time.strftime("%M",time.gmtime()))==0:
         json.dump(RainJson,openfile)
         openfile.truncate()
     dailyrainin = RainJson["totalrain"]
-    DataURL = BaseURL+"siteid="+SiteId+"&siteAuthenticationKey="+AuthKey+"&dateutc="+localdt+"&winddir="+str(Data["wind"]["localdeg"])+"&windspeedmph="+str(windspeed)+"&windgustmph="+str(windgust)+"&humidity="+str(Data["weather"]["humidity"])+"&tempf="+str(tempf)+"&baromin="+str(baromin)+"&rainin="+str(rainin)+"&dailyrainin="+str(dailyrainin)+"&softwaretype="+SoftwareType
     
-#now check if it is 9am, if so, set the dailyrainin to rainin
-elif int(time.strftime("%H",time.gmtime()))==9 and int(time.strftime("%M",time.gmtime()))==0:
-    DataURL = BaseURL+"siteid="+SiteId+"&siteAuthenticationKey="+AuthKey+"&dateutc="+localdt+"&winddir="+str(Data["wind"]["localdeg"])+"&windspeedmph="+str(windspeed)+"&windgustmph="+str(windgust)+"&humidity="+str(Data["weather"]["humidity"])+"&tempf="+str(tempf)+"&baromin="+str(baromin)+"&rainin="+str(rainin)+"&dailyrainin="+str(rainin)+"&softwaretype="+SoftwareType
+#now check if it is 9am localtime, if so, set the dailyrainin to rainin
+if int(time.strftime("%H",time.gmtime()))==17 and int(time.strftime("%M",time.gmtime()))==0:
     # write to the file
     with open('raintotal.json','r+') as writefile:
         RainJson = json.load(writefile)
@@ -71,10 +69,10 @@ elif int(time.strftime("%H",time.gmtime()))==9 and int(time.strftime("%M",time.g
         writefile.seek(0)
         json.dump(RainJson,writefile)
         writefile.truncate()
-else:
-    #just open the file and read the rain, don't edit it.
-    with open('raintotal.json','r') as openfile:
-        RainJson = json.load(openfile)
+
+    #Now just open the file and read the rain, don't edit it.
+with open('raintotal.json','r') as openfile:
+    RainJson = json.load(openfile)
     dailyrainin = RainJson["totalrain"]
     DataURL = BaseURL+"siteid="+SiteId+"&siteAuthenticationKey="+AuthKey+"&dateutc="+localdt+"&winddir="+str(Data["wind"]["localdeg"])+"&windspeedmph="+str(windspeed)+"&windgustmph="+str(windgust)+"&humidity="+str(Data["weather"]["humidity"])+"&tempf="+str(tempf)+"&baromin="+str(baromin)+"&rainin="+str(rainin)+"&dailyrainin="+str(dailyrainin)+"&softwaretype="+SoftwareType
 
