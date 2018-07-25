@@ -48,7 +48,7 @@ rainin = (Data["localrain"]["1h"])/25.4
 dailyrainin = (Data["localrain"]["24h"])/25.4
 
 #The rain gauge seems to report 0.25mm of rain constantly.
-if Data["localrain"]["1hr"] <= 0.25:
+if Data["localrain"]["1h"] <= 0.25:
     rainin = 0.0
 
 # We want to reset the rainfall total every day at 9am, then add the rainfall to that total. 
