@@ -25,3 +25,6 @@ The Sketches directory contains the sketch you'll need to push to your arduino. 
 The upload_data.py script has its own instructions, but it will pull the data from the arduino and upload it to the Met WOW project. It needs to be hosted (typically) on a Linux machine. Crontab will need to run the script every 5 minutes. Strictly speaking the Arduino could do all of this itself too...
 
 Finally the mappings_script contains information on how to map the weather datatypes into Elasticsearch.
+
+### Please check out my weather station here:
+http://bom-wow.metoffice.gov.uk/observations/details?site_id=faf64a2d-7f7e-e811-9ccc-0003ff599983
