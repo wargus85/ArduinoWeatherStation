@@ -1,5 +1,9 @@
 /*
 
+Note to self: download the latest IDE from arduino.
+Then download the time library from github as a zip file. Use the IDE to import it.
+Review the IP address below.
+
 Some source code for the weather station originally from: https://www.dfrobot.com/wiki/index.php/Weather_Station_with_Anemometer/Wind_vane/Rain_bucket_SKU:SEN0186
 Some more source code for the http server from: https://www.arduino.cc/en/Tutorial/WebServer
 Time Library: https://www.pjrc.com/teensy/td_libs_Time.html
@@ -22,6 +26,7 @@ You may want to change the latitude and longitude to the location of your weathe
 char databuffer[35];
 double temp;
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
+IPAddress ip(10, 60, 204, 181);
 unsigned long epoch;
 time_t curtime;
 String Cardinal = "N";
@@ -175,7 +180,7 @@ String GetCardinal() //Cardinal directions. The sensors only report 8 values.
 
 void setup(){
   // start the Ethernet connection and the server:
-  Ethernet.begin(mac) == 0;
+  Ethernet.begin(mac, ip);
   server.begin();
   Udp.begin(localPort);
   Serial.begin(9600);
